@@ -12,30 +12,37 @@ function _init()
  hero.x = 1
  hero.y = 1
  w = 16
- draw_tiles()
+ compute_tiles()
 end
 
 function move_hero()
- if btn(0) then
+ if btnp(0) then
   hero.x -= 1
  end
- if btn(1) then
+ if btnp(1) then
   hero.x += 1
  end
- if btn(2) then
+ if btnp(2) then
   hero.y -= 1
  end
- if btn(3) then
+ if btnp(3) then
   hero.y += 1
  end
 end
 
-function draw_tiles()
+function compute_tiles()
  for i=0,par.n do
   tiles[i] = {}
   for j=0,par.m do
    tiles[i][j] = {}
    tiles[i][j] = flr(rnd(3))
+  end
+ end
+end
+
+function draw_tiles()
+ for i=0,par.n do
+  for j=0,par.m do
    spr(tiles[i][j]*2,i*16,j*16,2,2)
   end
  end
@@ -47,6 +54,7 @@ end
 
 function _draw()
  move_hero()
+ draw_tiles()
  spr(6,hero.x*w,hero.y*w,2,2)
 end
 
