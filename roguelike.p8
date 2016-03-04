@@ -13,34 +13,28 @@ function _init()
  hero.canmove = true
  t = 0
  w = 16 -- the width of our tiles
- init_tiles()
+ compute_tiles()
  tile_types = {}
  tile_types.magic = 2
 end
 
 function move_hero()
- if not (btn(0) or btn(1) 
-  or btn(2) or btn(3)) then
-  hero.canmove = true
- elseif hero.canmove then
-  if btn(0) and hero.x > 0 then
-   hero.x -= 1
-  end
-  if btn(1) and hero.x < par.n then
-   hero.x += 1
-  end
-  if btn(2) and hero.y > 0 then
-   hero.y -= 1
-  end
-  if btn(3) and hero.y < par.m then
-   hero.y += 1
-  end
-  hero.canmove = false
-  check_tile()
+ if btnp(0) and hero.x > 0 then
+  hero.x -= 1
  end
+ if btnp(1) and hero.x < par.n then
+  hero.x += 1
+ end
+ if btnp(2) and hero.y > 0 then
+  hero.y -= 1
+ end
+ if btnp(3) and hero.y < par.m then
+  hero.y += 1
+ end
+ check_tile()
 end
 
-function init_tiles()
+function compute_tiles()
  for i=0,par.n do
   tiles[i] = {}
   for j=0,par.m do
