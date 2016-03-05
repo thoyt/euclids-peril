@@ -34,16 +34,16 @@ function move_hero()
  new_pos = {}
  new_pos.x = hero.x
  new_pos.y = hero.y
- if btnp(0) and hero.x > 0 then
+ if btnp(0) then
   new_pos.x -= 1
  end
- if btnp(1) and hero.x < par.n then
+ if btnp(1) then
   new_pos.x += 1
  end
- if btnp(2) and hero.y > 0 then
+ if btnp(2) then
   new_pos.y -= 1
  end
- if btnp(3) and hero.y < par.m then
+ if btnp(3) then
   new_pos.y += 1
  end
  
@@ -65,6 +65,12 @@ function tile_at(pos)
 end
 
 function allowed(pos)
+ if pos.x >= par.n or
+    pos.y >= par.m or
+    pos.x < 0 or
+    pos.y < 0 then
+  return false
+ end
  tile = tile_at(pos)
  return tile.name != 'wall'
 end
@@ -74,11 +80,18 @@ function compute_grid()
   grid[i] = {}
   for j=0,par.m-1 do
    grid[i][j] = {}
-   grid[i][j] = flr(rnd(4))
+   if i == hero.x and 
+      j == hero.y then
+   	grid[i][j] = flr(rnd(3))
+   else
+    grid[i][j] = flr(rnd(4))
+   end
   end
  end
  goal.x = flr(rnd(par.n))
  goal.y = flr(rnd(par.m))
+ -- goal not on wall
+ grid[goal.x][goal.y] = flr(rnd(3))
 end
 
 function draw_grid()
