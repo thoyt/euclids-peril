@@ -188,27 +188,29 @@ function check_tile()
  end
 end
 
-function move_spheres()
+function sphere_turn(sphere)
  -- try to move toward hero, otherwise chill
  local dx
  local dy
- for sphere in all(spheres) do
-  local new_pos = {}
-  new_pos.x = sphere.x
-  new_pos.y = sphere.y
-  dx = (hero.x - sphere.x)
-  dy = (hero.y - sphere.y)
-  if abs(dx) > abs(dy) then
-   new_pos.x += sgn(dx)
-  else
-   new_pos.y += sgn(dy)
-  end
-  if allowed(new_pos) and
-   not is_occupied(new_pos.x, new_pos.y) then
-   sphere.x = new_pos.x
-   sphere.y = new_pos.y
-  end
+ local new_pos = {}
+ new_pos.x = sphere.x
+ new_pos.y = sphere.y
+ dx = (hero.x - sphere.x)
+ dy = (hero.y - sphere.y)
+ if abs(dx) > abs(dy) then
+  new_pos.x += sgn(dx)
+ else
+  new_pos.y += sgn(dy)
  end
+ if allowed(new_pos) and
+ not is_occupied(new_pos.x, new_pos.y) then
+  sphere.x = new_pos.x
+  sphere.y = new_pos.y
+ end
+end
+
+function move_spheres()
+ foreach(spheres, sphere_turn)
 end
 
 -- drawing functions
