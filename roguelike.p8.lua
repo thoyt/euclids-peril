@@ -37,6 +37,29 @@ function _init()
  next_level()
 end
 
+-- utilities --
+
+function grid_at(pos)
+ return grid[pos.x][pos.y]
+end
+
+function tile_at(pos)
+ return tiles[grid_at(pos)]
+end
+
+function valid_pos(pos)
+ return not (
+   pos.x >= n or
+   pos.y >= m or
+   pos.x < 0 or
+   pos.y < 0)
+end
+
+function sametile(u,v)
+ return u.x==v.x and u.y==v.y
+end
+
+
 -- game gen --
 
 function compute_grid()
@@ -127,22 +150,6 @@ function turn()
  move_spheres()
 end
 
-function grid_at(pos)
- return grid[pos.x][pos.y]
-end
-
-function tile_at(pos)
- return tiles[grid_at(pos)]
-end
-
-function valid_pos(pos)
- return not (
-   pos.x >= n or
-   pos.y >= m or
-   pos.x < 0 or
-   pos.y < 0)
-end
-
 function allowed(pos)
  if valid_pos(pos) then
   tile = tile_at(pos)
@@ -171,10 +178,6 @@ function swing(pos)
  if tile_at(pos).name == "wall" then
   sfx(4)
  end
-end
-
-function sametile(u,v)
- return u.x==v.x and u.y==v.y
 end
 
 function check_tile()
