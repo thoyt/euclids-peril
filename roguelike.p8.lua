@@ -57,17 +57,24 @@ function compute_grid()
  grid[goal.x][goal.y] = flr(rnd(ntiles))
 end
 
+function gen_sphere()
+ local sphere = {}
+ sphere.x = hero.x
+ sphere.y = hero.y
+ while (sametile(sphere,hero)) do
+  sphere.x = flr(rnd(n))
+  sphere.y = flr(rnd(m))
+ end
+ sphere.spr = 64
+ return sphere
+end
+
 function place_enemies()
   -- number/type of enemies can depend on level
  spheres = {}
  local n_spheres = level / 8 + 1
  for i=0,n_spheres do
-  local sphere = {}
-  sphere.x = flr(rnd(n))
-  sphere.y = flr(rnd(m))
-  sphere.spr = 64
-  if sametile(sphere, hero) then sphere.x += 1 end -- :(
-  add(spheres, sphere)
+  add(spheres, gen_sphere())
  end
 end
 
