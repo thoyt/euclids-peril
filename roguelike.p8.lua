@@ -113,6 +113,18 @@ function toggle_item()
  if selected > #items then selected = 1 end
 end
 
+function get_sphere_at(pos)
+ for sphere in all(spheres) do
+  if sametile(sphere, pos) then
+   return sphere
+  end
+ end
+end
+
+function sphere_fight_hero(sphere)
+ sfx(2)
+end
+
 function process_input()
  if btnp(0) or btnp(1) or btnp(2) or btnp(3) then
 
@@ -130,7 +142,7 @@ function process_input()
   end
 
   if is_occupied(new_pos.x, new_pos.y) then
-    sfx(2) -- fiiight
+   sphere_fight_hero(get_sphere_at(new_pos))
   elseif allowed(new_pos) then
    hero.x = new_pos.x
    hero.y = new_pos.y
