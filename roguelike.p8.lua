@@ -3,14 +3,14 @@ version 5
 __lua__
 function _init()
  grid = {}
- par = {} -- params we use only sometimes
- par.n = 7 -- tile grid dims
- par.m = 7
+
+ n = 7 -- tile grid dims
+ m = 7
  mtop = 14 -- margins in pixels
  mleft = 8
 
  level = 1
- hero = {x=0,y=0,spr=6,life=30}
+ hero = {x=0,y=0,spr=6,life=20,maxlife=30}
  lifebar = {x=58,y=2,h=5,col=8}
 
  items = {}
@@ -20,10 +20,9 @@ function _init()
  selected = 1
  inventory_y = 2 -- inventory ypos
 
- goal = {}
- goal.x = 0
- goal.y = 0
- goal.spr = 8
+ goal = {x=0,y=0,spr=8}
+
+ spheres = {}
 
  t = 0
  w = 16 -- the width of our tiles
@@ -34,7 +33,8 @@ function _init()
  tiles[2] = {spr=4,name="green"}
  tiles[3] = {spr=32,name="magic"}
  tiles[4] = {spr=36,name="wall"}
- compute_grid()
+ ntiles = 4
+ next_level()
 end
 
 function toggle_item()
@@ -43,33 +43,44 @@ function toggle_item()
 end
 
 function process_input()
- new_pos = {}
- new_pos.x = hero.x
- new_pos.y = hero.y
- if btnp(0) then
-  new_pos.x -= 1
- elseif btnp(1) then
-  new_pos.x += 1
- elseif btnp(2) then
-  new_pos.y -= 1
- elseif btnp(3) then
-  new_pos.y += 1
+ if btnp(0) or btnp(1) or btnp(2) or btnp(3) then
+
+  new_pos = {}
+  new_pos.x = hero.x
+  new_pos.y = hero.y
+  if btnp(0) then
+   new_pos.x -= 1
+  elseif btnp(1) then
+   new_pos.x += 1
+  elseif btnp(2) then
+   new_pos.y -= 1
+  elseif btnp(3) then
+   new_pos.y += 1
+  end
+
+  if is_occupied(new_pos.x, new_pos.y) then
+    sfx(2) -- fiiight
+  elseif allowed(new_pos) then
+   hero.x = new_pos.x
+   hero.y = new_pos.y
+  elseif valid_pos(new_pos) then
+   items[selected].func(new_pos)
+  end
+
+  turn()
  elseif btnp(4) then
   toggle_item()
-  return
  end
 
- if allowed(new_pos) then
-  hero.x = new_pos.x
-  hero.y = new_pos.y
-  if btnp(0) or btnp(1) or btnp(2) or btnp(3) then check_tile() end
- elseif valid_pos(new_pos) then
-  items[selected].func(new_pos)
- end
+end
+
+function turn()
+ check_tile()
+ move_spheres()
 end
 
 function grid_at(pos)
- return grid[new_pos.x][new_pos.y]
+ return grid[pos.x][pos.y]
 end
 
 function tile_at(pos)
@@ -78,8 +89,8 @@ end
 
 function valid_pos(pos)
  return not (
-   pos.x >= par.n or
-   pos.y >= par.m or
+   pos.x >= n or
+   pos.y >= m or
    pos.x < 0 or
    pos.y < 0)
 end
@@ -93,23 +104,30 @@ function allowed(pos)
  end
 end
 
+function is_occupied(x,y)
+ if x == hero.x and y == hero.y then return true end
+ for sphere in all(spheres) do
+  if x == sphere.x and y == sphere.y then return true end
+ end
+ return false
+end
+
 function compute_grid()
- for i=0,par.n-1 do
+ for i=0,n-1 do
   grid[i] = {}
-  for j=0,par.m-1 do
+  for j=0,m-1 do
    grid[i][j] = {}
-   if i == hero.x and
-      j == hero.y then
-    grid[i][j] = flr(rnd(4))
+   if is_occupied(i,j) then
+    grid[i][j] = flr(rnd(ntiles))
    else
-    grid[i][j] = flr(rnd(5))
+    grid[i][j] = flr(rnd(ntiles+1))
    end
   end
  end
- goal.x = flr(rnd(par.n))
- goal.y = flr(rnd(par.m))
+ goal.x = flr(rnd(n))
+ goal.y = flr(rnd(m))
  -- goal not on wall
- grid[goal.x][goal.y] = flr(rnd(4))
+ grid[goal.x][goal.y] = flr(rnd(ntiles))
 end
 
 function draw_inventory()
@@ -123,23 +141,24 @@ function draw_inventory()
  end
  foreach(items, display_item)
  spr(35,items[selected].x,inventory_y,1,1)
- --rect(items[1].x-1,inventory_y-1,items[#items].x+8,inventory_y+8,13)
 end
 
 function draw_lifebar()
- for i=0,hero.life do
+ local col = 8
+ for i=0,hero.maxlife do
+  if i > hero.life then col = 5 end
   line(lifebar.x+i*2,
    lifebar.y,
    lifebar.x+i*2,
    lifebar.y+lifebar.h,
-   lifebar.col)
+   col)
  end
 end
 
 function break_wall(pos)
  if tile_at(pos).name == "wall" then
   sfx(3)
-  grid[pos.x][pos.y] = flr(rnd(4))
+  grid[pos.x][pos.y] = flr(rnd(ntiles))
  end
 end
 
@@ -150,8 +169,8 @@ function swing(pos)
 end
 
 function draw_grid()
- for i=0,par.n-1 do
-  for j=0,par.m-1 do
+ for i=0,n-1 do
+  for j=0,m-1 do
    spr(tiles[grid[i][j]].spr,
     mleft+i*w,mtop+j*w,2,2)
   end
@@ -171,7 +190,55 @@ function check_tile()
  if sametile(hero,goal) then
   sfx(1)
   level+=1
-  compute_grid()
+  next_level()
+ end
+end
+
+function next_level()
+ place_enemies()
+ compute_grid()
+end
+
+function place_enemies()
+  -- number/type of enemies can depend on level
+ spheres = {}
+ local n_spheres = level / 8 + 1
+ for i=0,n_spheres do
+  local sphere = {}
+  sphere.x = flr(rnd(n))
+  sphere.y = flr(rnd(m))
+  sphere.spr = 64
+  if sametile(sphere, hero) then sphere.x += 1 end -- :(
+  add(spheres, sphere)
+ end
+end
+
+function move_spheres()
+ -- try to move toward hero, otherwise chill
+ local dx
+ local dy
+ for sphere in all(spheres) do
+  local new_pos = {}
+  new_pos.x = sphere.x
+  new_pos.y = sphere.y
+  dx = (hero.x - sphere.x)
+  dy = (hero.y - sphere.y)
+  if abs(dx) > abs(dy) then
+   new_pos.x += sgn(dx)
+  else
+   new_pos.y += sgn(dy)
+  end
+  if allowed(new_pos) and
+   not is_occupied(new_pos.x, new_pos.y) then
+   sphere.x = new_pos.x
+   sphere.y = new_pos.y
+  end
+ end
+end
+
+function draw_enemies()
+ for sphere in all(spheres) do
+  spr(sphere.spr,mleft+sphere.x*w,mtop+sphere.y*w,2,2)
  end
 end
 
@@ -191,8 +258,11 @@ function _draw()
  draw_lifebar()
  draw_grid()
  process_input()
+
  spr(hero.spr,
   mleft+hero.x*w,mtop+hero.y*w,2,2)
+ draw_enemies()
+
 end
 
 __gfx__
@@ -231,16 +301,16 @@ dddddddddddddddd2222222222222222333333333333333300000000000000005555555555555555
 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+00000aaaaaa000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+0000aaaaaaaa00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+000aa33aaa33a0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+000aa383a383a0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+000aa333a333a0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+000aaaaaaaaaa0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+000aaaaaaaaaa0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+000aaa88888aa0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+0000aa8aa8aa00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+00000aaaaaa000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
