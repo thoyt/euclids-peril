@@ -130,31 +130,6 @@ function compute_grid()
  grid[goal.x][goal.y] = flr(rnd(ntiles))
 end
 
-function draw_inventory()
- function display_item(i)
-  if i.own then
-   spr(i.spr,i.x,inventory_y,1,1)
-  end
- end
- for i=1,#items do -- draw inventory background
-  spr(50,items[i].x,inventory_y,1,1)
- end
- foreach(items, display_item)
- spr(35,items[selected].x,inventory_y,1,1)
-end
-
-function draw_lifebar()
- local col = 8
- for i=0,hero.maxlife do
-  if i > hero.life then col = 5 end
-  line(lifebar.x+i*2,
-   lifebar.y,
-   lifebar.x+i*2,
-   lifebar.y+lifebar.h,
-   col)
- end
-end
-
 function break_wall(pos)
  if tile_at(pos).name == "wall" then
   sfx(3)
@@ -166,17 +141,6 @@ function swing(pos)
  if tile_at(pos).name == "wall" then
   sfx(4)
  end
-end
-
-function draw_grid()
- for i=0,n-1 do
-  for j=0,m-1 do
-   spr(tiles[grid[i][j]].spr,
-    mleft+i*w,mtop+j*w,2,2)
-  end
- end
- spr(goal.spr,mleft+goal.x*w,
-  mtop+goal.y*w,2,2)
 end
 
 function sametile(u,v)
@@ -236,14 +200,52 @@ function move_spheres()
  end
 end
 
+-- drawing functions
+
+function draw_bg()
+ map(0,0,0,0,16,16)
+end
+
+function draw_inventory()
+ function display_item(i)
+  if i.own then
+   spr(i.spr,i.x,inventory_y,1,1)
+  end
+ end
+ for i=1,#items do -- draw inventory background
+  spr(50,items[i].x,inventory_y,1,1)
+ end
+ foreach(items, display_item)
+ spr(35,items[selected].x,inventory_y,1,1)
+end
+
+function draw_lifebar()
+ local col = 8
+ for i=0,hero.maxlife do
+  if i > hero.life then col = 5 end
+  line(lifebar.x+i*2,
+   lifebar.y,
+   lifebar.x+i*2,
+   lifebar.y+lifebar.h,
+   col)
+ end
+end
+
+function draw_grid()
+ for i=0,n-1 do
+  for j=0,m-1 do
+   spr(tiles[grid[i][j]].spr,
+    mleft+i*w,mtop+j*w,2,2)
+  end
+ end
+ spr(goal.spr,mleft+goal.x*w,
+  mtop+goal.y*w,2,2)
+end
+
 function draw_enemies()
  for sphere in all(spheres) do
   spr(sphere.spr,mleft+sphere.x*w,mtop+sphere.y*w,2,2)
  end
-end
-
-function draw_bg()
- map(0,0,0,0,16,16)
 end
 
 function _update()
@@ -259,10 +261,8 @@ function _draw()
  draw_grid()
  process_input()
 
- spr(hero.spr,
-  mleft+hero.x*w,mtop+hero.y*w,2,2)
+ spr(hero.spr,mleft+hero.x*w,mtop+hero.y*w,2,2)
  draw_enemies()
-
 end
 
 __gfx__
