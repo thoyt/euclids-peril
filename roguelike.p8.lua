@@ -37,6 +37,47 @@ function _init()
  next_level()
 end
 
+-- game gen --
+
+function compute_grid()
+ for i=0,n-1 do
+  grid[i] = {}
+  for j=0,m-1 do
+   grid[i][j] = {}
+   if is_occupied(i,j) then
+    grid[i][j] = flr(rnd(ntiles))
+   else
+    grid[i][j] = flr(rnd(ntiles+1))
+   end
+  end
+ end
+ goal.x = flr(rnd(n))
+ goal.y = flr(rnd(m))
+ -- goal not on wall
+ grid[goal.x][goal.y] = flr(rnd(ntiles))
+end
+
+function place_enemies()
+  -- number/type of enemies can depend on level
+ spheres = {}
+ local n_spheres = level / 8 + 1
+ for i=0,n_spheres do
+  local sphere = {}
+  sphere.x = flr(rnd(n))
+  sphere.y = flr(rnd(m))
+  sphere.spr = 64
+  if sametile(sphere, hero) then sphere.x += 1 end -- :(
+  add(spheres, sphere)
+ end
+end
+
+function next_level()
+ place_enemies()
+ compute_grid()
+end
+
+-- input processing and movement
+
 function toggle_item()
  selected += 1
  if selected > #items then selected = 1 end
@@ -112,24 +153,6 @@ function is_occupied(x,y)
  return false
 end
 
-function compute_grid()
- for i=0,n-1 do
-  grid[i] = {}
-  for j=0,m-1 do
-   grid[i][j] = {}
-   if is_occupied(i,j) then
-    grid[i][j] = flr(rnd(ntiles))
-   else
-    grid[i][j] = flr(rnd(ntiles+1))
-   end
-  end
- end
- goal.x = flr(rnd(n))
- goal.y = flr(rnd(m))
- -- goal not on wall
- grid[goal.x][goal.y] = flr(rnd(ntiles))
-end
-
 function break_wall(pos)
  if tile_at(pos).name == "wall" then
   sfx(3)
@@ -155,25 +178,6 @@ function check_tile()
   sfx(1)
   level+=1
   next_level()
- end
-end
-
-function next_level()
- place_enemies()
- compute_grid()
-end
-
-function place_enemies()
-  -- number/type of enemies can depend on level
- spheres = {}
- local n_spheres = level / 8 + 1
- for i=0,n_spheres do
-  local sphere = {}
-  sphere.x = flr(rnd(n))
-  sphere.y = flr(rnd(m))
-  sphere.spr = 64
-  if sametile(sphere, hero) then sphere.x += 1 end -- :(
-  add(spheres, sphere)
  end
 end
 
