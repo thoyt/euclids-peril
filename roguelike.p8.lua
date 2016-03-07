@@ -13,7 +13,8 @@ function _init()
  mleft = 8
 
  level = 1
- hero = {x=0,y=0,spr=6,life=20,maxlife=30}
+ start_life=10
+ hero = {x=0,y=0,spr=6,life=start_life,maxlife=30}
  lifebar = {x=58,y=2,h=5,col=8}
 
  items = {}
@@ -110,6 +111,7 @@ end
 function next_level()
  place_enemies()
  compute_grid()
+ hero.life=start_life
 end
 
 -- input processing and movement
@@ -131,14 +133,13 @@ function freeze_sphere(sphere)
  sphere.frozen_turns = 2
 end
 
-function hero_fight_sphere(sphere)
+function hero_attack_sphere(sphere)
  freeze_sphere(sphere)
  sfx(5)
 end
 
-function process_input()
+function player_turn()
  if btnp(0) or btnp(1) or btnp(2) or btnp(3) then
-
   new_pos = {}
   new_pos.x = hero.x
   new_pos.y = hero.y
@@ -153,7 +154,7 @@ function process_input()
   end
 
   if is_occupied(new_pos.x, new_pos.y) then
-   hero_fight_sphere(get_sphere_at(new_pos))
+   hero_attack_sphere(get_sphere_at(new_pos))
   elseif allowed(new_pos) then
    hero.x = new_pos.x
    hero.y = new_pos.y
@@ -161,16 +162,31 @@ function process_input()
    items[selected].func(new_pos)
   end
 
-  turn()
+  check_tile()
  elseif btnp(4) then
   toggle_item()
  end
 
+
 end
 
-function turn()
- check_tile()
- move_spheres()
+function npc_turn()
+ -- move the spheres and attack hero if in range
+ move_spheres_or_attack_hero()
+end
+
+function check_for_game_over()
+ if hero.life == 0 then
+  mode = "game over"
+ end
+end
+
+function process_input()
+ if btnp(0) or btnp(1) or btnp(2) or btnp(3) or btnp(4) then
+  player_turn()
+  npc_turn()
+  check_for_game_over()
+ end
 end
 
 function allowed(pos)
@@ -214,9 +230,7 @@ function check_tile()
  end
 end
 
-function sphere_turn(sphere)
- -- try to move toward hero, otherwise chill
- if sphere.frozen_turns == 0 then
+function move_sphere_toward_hero(sphere)
   local dx
   local dy
   local new_pos = {}
@@ -234,13 +248,35 @@ function sphere_turn(sphere)
    sphere.x = new_pos.x
    sphere.y = new_pos.y
   end
+end
+
+function within_attack_range(sphere)
+  dx = (hero.x - sphere.x)
+  dy = (hero.y - sphere.y)
+  return (abs(dx) == 1 and abs(dy) == 0) or
+         (abs(dy) == 1 and abs(dx) == 0)
+end
+
+function attack(sphere)
+ hero.life -= 1
+ rectfill(0,0,128,128,8)
+end
+
+function sphere_turn_or_attack_hero(sphere)
+ -- attack hero if within range, otherwise move toward hero if possible
+ if sphere.frozen_turns == 0 then
+  if within_attack_range(sphere) then
+   attack(sphere)
+  else
+   move_sphere_toward_hero(sphere)
+  end
  else
   sphere.frozen_turns -= 1
  end
 end
 
-function move_spheres()
- foreach(spheres, sphere_turn)
+function move_spheres_or_attack_hero()
+ foreach(spheres, sphere_turn_or_attack_hero)
 end
 
 -- drawing functions
@@ -334,7 +370,13 @@ function splash_screen()
  print("press z",50,100)
  if btnp(4) then
   mode = "main"
+  next_level()
  end
+end
+
+function game_over()
+ splash_screen()
+ print("GAME OVER :<",50,150,8)
 end
 
 function _update()
@@ -345,6 +387,8 @@ function _draw()
  cls()
  if mode=="splash" then
   splash_screen()
+ elseif mode=="game over" then
+  game_over()
  elseif mode=="main" then
   draw_bg()
   print(level,2,2,7)
