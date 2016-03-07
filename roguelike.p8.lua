@@ -3,6 +3,7 @@ version 5
 __lua__
 function _init()
  mode = "splash"
+ circles = {}
 
  grid = {}
 
@@ -36,6 +37,7 @@ function _init()
  tiles[3] = {spr=32,name="magic"}
  tiles[4] = {spr=36,name="wall"}
  ntiles = 4
+ init_splash()
  next_level()
 end
 
@@ -293,11 +295,41 @@ function draw_enemies()
  end
 end
 
+function init_splash()
+ local ncircles = 50
+ for i=0,ncircles do
+  local circle = {}
+  circle.x = flr(rnd(128))
+  circle.y = flr(rnd(128))
+  circle.omega = rnd(3)
+  circle.r = rnd(5) + 1
+  circle.amp = rnd(2)
+  circle.col = flr(rnd(16))
+  add(circles, circle)
+ end
+end
+
+function update_circles()
+ for circle in all(circles) do
+  circle.x += circle.amp * sin((circle.omega * t) / 400)
+  circle.y += circle.amp * cos((circle.omega * t) / 100)
+ end
+end
+
+function draw_circles()
+ for circle in all(circles) do
+  circ(circle.x,circle.y,circle.r,circle.col)
+ end
+end
+
 function splash_screen()
+ update_circles()
+ draw_circles()
  local euclid_spr = 68
  local peril_spr = 130
  spr(euclid_spr, 17, 40, 12, 3)
  spr(peril_spr, 26, 70, 10, 2)
+ pal()
  print("'s",110,45) -- replace with pixels ^___^
  print("press z",50,100)
  if btnp(4) then
@@ -312,7 +344,7 @@ end
 function _draw()
  cls()
  if mode=="splash" then
-  splash_screen()  
+  splash_screen()
  elseif mode=="main" then
   draw_bg()
   print(level,2,2,7)
