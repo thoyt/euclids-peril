@@ -337,25 +337,28 @@ function init_splash()
   local circle = {}
   circle.x = flr(rnd(128))
   circle.y = flr(rnd(128))
-  circle.omega = rnd(3)
-  circle.r = rnd(5) + 1
+  circle.omega = rnd(2)
+  circle.r = rnd(10) + 1
   circle.amp = rnd(2)
-  circle.col = flr(rnd(16))
+  circle.col = 8 + 2*flr(rnd(3)) --rgb colorscheme
   add(circles, circle)
  end
 end
 
 function update_circles()
  for circle in all(circles) do
-  circle.x += circle.amp * sin((circle.omega * t) / 400)
-  circle.y += circle.amp * cos((circle.omega * t) / 100)
+  circle.x += circle.amp * sin((circle.omega * (1+t) / 400))
+  circle.y += circle.amp * cos((circle.omega * (1+t) / 100))
  end
 end
 
 function draw_circles()
+ local p = sin(t/300)
+ local r = 40 + 32*p*p
  for circle in all(circles) do
-  circ(circle.x,circle.y,circle.r,circle.col)
+  circfill(circle.x,circle.y,circle.r,circle.col)
  end
+ circfill(64,64,r,0) --clipping circle
 end
 
 function splash_screen()
@@ -366,8 +369,8 @@ function splash_screen()
  spr(euclid_spr, 17, 40, 12, 3)
  spr(peril_spr, 26, 70, 10, 2)
  pal()
- print("'s",110,45) -- replace with pixels ^___^
- print("press z",50,100)
+ print("'s",110,45,7) -- replace with pixels ^___^
+ print("press z",50,100,7)
  if btnp(4) then
   mode = "main"
   next_level()
