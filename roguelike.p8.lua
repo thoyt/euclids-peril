@@ -139,6 +139,7 @@ function next_level()
  place_powerups()
  compute_grid()
  hero.life=start_life
+ selected = 1
 end
 
 -- input processing and movement
