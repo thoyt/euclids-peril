@@ -19,12 +19,15 @@ function _init()
  heart = {x=0,y=0,placed=false,val=5,spr=51}
  p_heart = 0.5
 
+ triangle = {x=0,y=0,placed=false,spr=41}
+ triangle_level = 2
+
  items = {}
  items[1] = {spr=38,name="pickax",own=true,func=break_wall,x=mleft+1}
  items[2] = {spr=39,name="point",own=true,func=point_attack,x=mleft+9}
  items[3] = {spr=40,name="line",own=true,func=line_attack,x=mleft+17}
- items[4] = {spr=41,name="triangle",own=true,func=triangle_attack,x=mleft+25}
- items[5] = {spr=42,name="square",own=true,func=square_attack,x=mleft+33}
+ items[4] = {spr=41,name="triangle",own=false,func=triangle_attack,x=mleft+25}
+ items[5] = {spr=42,name="square",own=false,func=square_attack,x=mleft+33}
  selected = 1
  inventory_y = 2 -- inventory ypos
 
@@ -114,7 +117,7 @@ function place_enemies()
  end
 end
 
-function place_powerups()
+function place_heart()
  heart.x = hero.x
  heart.y = hero.y
  if (rnd(1) < p_heart) then
@@ -128,10 +131,34 @@ function place_powerups()
  end
 end
 
-function draw_powerups()
- if heart.placed then
-  spr(heart.spr, mleft+heart.x*w+8,mtop+heart.y*w+8,1,1)
+function place_triangle()
+ triangle.x = hero.x
+ triangle.y = hero.y
+ if level == triangle_level then
+  while (sametile(hero, triangle)) do
+   triangle.x = flr(rnd(n))
+   triangle.y = flr(rnd(m))
+  end
+  triangle.placed = true
+ else
+  triangle.placed = false
  end
+end
+
+function place_powerups()
+ place_heart()
+ place_triangle()
+end
+
+function draw_powerup(powerup)
+ if powerup.placed then
+  spr(powerup.spr, mleft+powerup.x*w+8,mtop+powerup.y*w+8,1,1)
+ end
+end
+
+function draw_powerups()
+ draw_powerup(heart)
+ draw_powerup(triangle)
 end
 
 function next_level()
@@ -146,6 +173,10 @@ end
 
 function toggle_item()
  selected += 1
+ while (selected <= #items) and
+       (not items[selected].own) do
+  selected += 1
+ end
  if selected > #items then selected = 1 end
 end
 
@@ -319,6 +350,10 @@ function check_tile()
  if sametile(hero,heart) and heart.placed then
   hero.life += heart.val
   heart.placed = false
+ end
+ if sametile(hero,triangle) and triangle.placed then
+  items[4].own = true
+  triangle.placed = false
  end
  if sametile(hero,goal) then
   sfx(1)
