@@ -397,7 +397,7 @@ end
 function draw_lifebar()
  local col = 8
  for i=0,hero.maxlife do
-  if i > hero.life then col = 5 end
+  if i >= hero.life then col = 5 end
   line(lifebar.x+i*2,
    lifebar.y,
    lifebar.x+i*2,
