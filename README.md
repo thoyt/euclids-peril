@@ -1,3 +1,27 @@
+Not particularly "done"
+=======================
+
+* Enemies
+  - 3 types
+  - tiles protect you from certain enemies
+  - they should probably die. Maybe they take two hits.
+* Music
+  - Music for the intro
+  - Music for the game
+  - Really we should refine the sound effects too
+
+
+Nice to have
+============
+
+* Tutorial screen
+* Game over screen
+  - Music for the game over screen 
+
+
+Done-ish
+========
+
 * Items
   - point
     - attack single square
@@ -9,13 +33,5 @@
     - 4 "pts"
 * Powerups
   - heart/life
-  - "energy"??
+  - "energy"?? (how about no)
   - items themselves (auto-pick)
-* Tiles
-  - benefit??
-  - immunity from certain attacks?
-* Enemies
-  - 1 type
-    - 3 different "looks"
-    - tiles protect you from certain enemies
-  - ramp up difficulty via #
