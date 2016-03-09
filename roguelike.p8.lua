@@ -36,11 +36,11 @@ function _init()
  w = 16 -- the width of our tiles
 
  tiles = {}
- tiles[0] = {spr=0,name="blue"}
- tiles[1] = {spr=2,name="red"}
- tiles[2] = {spr=4,name="green"}
- tiles[3] = {spr=32,name="magic"}
- tiles[4] = {spr=36,name="wall"}
+ tiles[0] = {spr=0,name="blue", protects=false}
+ tiles[1] = {spr=2,name="red", protects=false}
+ tiles[2] = {spr=4,name="green", protects=false}
+ tiles[3] = {spr=32,name="magic", protects=true}
+ tiles[4] = {spr=36,name="wall", protects=false}
  ntiles = 4
  init_splash()
 end
@@ -404,10 +404,15 @@ function attack(sphere)
  rectfill(0,0,128,128,8)
 end
 
+function hero_protected()
+ return tile_at(hero).protects
+end
+
 function sphere_turn_or_attack_hero(sphere)
  -- attack hero if within range, otherwise move toward hero if possible
  if sphere.frozen_turns == 0 then
-  if within_attack_range(sphere) then
+  if within_attack_range(sphere) and
+     (not hero_protected()) then
    attack(sphere)
   else
    move_sphere_toward_hero(sphere)
