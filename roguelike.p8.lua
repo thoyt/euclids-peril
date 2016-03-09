@@ -102,6 +102,7 @@ function gen_sphere()
  sphere.spr = 64
  sphere.frozen_spr = 66
  sphere.frozen_turns = 0
+ sphere.health = 2
  return sphere
 end
 
@@ -186,6 +187,9 @@ function get_sphere_at(pos)
 end
 
 function freeze_sphere(sphere)
+ if (sphere.frozen_turns > 0) then
+  sphere.health -= 1
+ end
  sphere.frozen_turns = 2
 end
 
@@ -287,12 +291,19 @@ function player_turn()
  elseif btnp(4) then
   toggle_item()
  end
+end
 
-
+function remove_dead_spheres()
+ for sphere in all(spheres) do
+  if (sphere.health == 0) then
+   del(spheres, sphere)
+  end
+ end
 end
 
 function npc_turn()
  -- move the spheres and attack hero if in range
+ remove_dead_spheres()
  move_spheres_or_attack_hero()
 end
 
@@ -454,11 +465,14 @@ end
 
 function draw_enemies()
  for sphere in all(spheres) do
+  x = mleft+sphere.x*w
+  y = mtop+sphere.y*w
   if sphere.frozen_turns > 0 then
-   spr(sphere.frozen_spr,mleft+sphere.x*w,mtop+sphere.y*w,2,2)
+   spr(sphere.frozen_spr,x,y,2,2)
   else
-   spr(sphere.spr,mleft+sphere.x*w,mtop+sphere.y*w,2,2)
+   spr(sphere.spr,x,y,2,2)
   end
+  print(sphere.health,x,y+10,7)
  end
 end
 
