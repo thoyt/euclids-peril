@@ -3,8 +3,6 @@ Not particularly "done"
 
 * Enemies
   - 3 types
-  - tiles protect you from certain enemies
-  - they should probably die. Maybe they take two hits.
 * Music
   - Music for the intro
   - Music for the game
@@ -22,6 +20,9 @@ Nice to have
 Done-ish
 ========
 
+* Enemies
+  - spheres die in two hits while frozen
+  - tiles protect you from certain enemies
 * Items
   - point
     - attack single square
