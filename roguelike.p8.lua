@@ -19,15 +19,12 @@ function _init()
  heart = {x=0,y=0,placed=false,val=5,spr=51}
  p_heart = 0.5
 
- triangle = {x=0,y=0,placed=false,spr=41}
- triangle_level = 2
-
  items = {}
- items[1] = {spr=38,name="pickax",own=true,func=break_wall,x=mleft+1}
- items[2] = {spr=39,name="point",own=true,func=point_attack,x=mleft+9}
- items[3] = {spr=40,name="line",own=true,func=line_attack,x=mleft+17}
- items[4] = {spr=41,name="triangle",own=false,func=triangle_attack,x=mleft+25}
- items[5] = {spr=42,name="square",own=false,func=square_attack,x=mleft+33}
+ items[1] = {spr=38,name="pickax",own=true,func=break_wall,x_inv=mleft+1,x=0,y=0,placed=false,level=-1}
+ items[2] = {spr=39,name="point",own=false,func=point_attack,x_inv=mleft+9,x=0,y=0,placed=false,level=2}
+ items[3] = {spr=40,name="line",own=false,func=line_attack,x_inv=mleft+17,x=0,y=0,placed=false,level=4}
+ items[4] = {spr=41,name="triangle",own=false,func=triangle_attack,x_inv=mleft+25,x=0,y=0,placed=false,level=6}
+ items[5] = {spr=42,name="square",own=false,func=square_attack,x_inv=mleft+33,x=0,y=0,placed=false,level=7}
  selected = 1
  inventory_y = 2 -- inventory ypos
 
@@ -131,23 +128,23 @@ function place_heart()
  end
 end
 
-function place_triangle()
- triangle.x = hero.x
- triangle.y = hero.y
- if level == triangle_level then
-  while (sametile(hero, triangle)) do
-   triangle.x = flr(rnd(n))
-   triangle.y = flr(rnd(m))
+function place_item(item)
+ item.x = hero.x
+ item.y = hero.y
+ if level == item.level then
+  while (sametile(hero, item)) do
+   item.x = flr(rnd(n))
+   item.y = flr(rnd(m))
   end
-  triangle.placed = true
+  item.placed = true
  else
-  triangle.placed = false
+  item.placed = false
  end
 end
 
 function place_powerups()
  place_heart()
- place_triangle()
+ foreach(items, place_item)
 end
 
 function draw_powerup(powerup)
@@ -158,7 +155,7 @@ end
 
 function draw_powerups()
  draw_powerup(heart)
- draw_powerup(triangle)
+ foreach(items, draw_powerup)
 end
 
 function next_level()
@@ -351,9 +348,11 @@ function check_tile()
   hero.life += heart.val
   heart.placed = false
  end
- if sametile(hero,triangle) and triangle.placed then
-  items[4].own = true
-  triangle.placed = false
+ for item in all(items) do
+  if sametile(hero,item) and item.placed then
+   item.own = true
+   item.placed = false
+  end
  end
  if sametile(hero,goal) then
   sfx(1)
@@ -420,14 +419,14 @@ end
 function draw_inventory()
  function display_item(i)
   if i.own then
-   spr(i.spr,i.x,inventory_y,1,1)
+   spr(i.spr,i.x_inv,inventory_y,1,1)
   end
  end
  for i=1,#items do -- draw inventory background
-  spr(50,items[i].x,inventory_y,1,1)
+  spr(50,items[i].x_inv,inventory_y,1,1)
  end
  foreach(items, display_item)
- spr(35,items[selected].x,inventory_y,1,1)
+ spr(35,items[selected].x_inv,inventory_y,1,1)
 end
 
 function draw_lifebar()
