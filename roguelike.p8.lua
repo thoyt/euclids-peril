@@ -499,10 +499,10 @@ function init_splash()
  local ncircles = 50
  for i=0,ncircles do
   local circle = {}
-  circle.x = flr(rnd(128))
-  circle.y = flr(rnd(128))
+  circle.x = flr(rnd(148))
+  circle.y = flr(rnd(148))
   circle.omega = rnd(2)
-  circle.r = rnd(10) + 1
+  circle.r = rnd(7) + 1
   circle.amp = rnd(2)
   circle.col = 8 + 2*flr(rnd(3)) --rgb colorscheme
   add(circles, circle)
