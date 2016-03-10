@@ -4,7 +4,6 @@ Not particularly "done"
 * Embetterment
   - Make it not so easy somehow?
   - Make the weapons worth using/make sense (triangle strike sides instead of rear flanks?)
-  - Make enemies try second direction if one direction is blocked and other would make progress
 
 * Sound 
   - Music for the intro
