@@ -317,7 +317,7 @@ function npc_turn()
 end
 
 function check_for_game_over()
- if hero.life == 0 then
+ if hero.life <= 0 then
   mode = "game over"
  end
 end
@@ -539,6 +539,7 @@ function splash_screen()
  print("press z",50,100,7)
  if btnp(4) then
   mode = "main"
+  level = 1
   next_level()
  end
 end
