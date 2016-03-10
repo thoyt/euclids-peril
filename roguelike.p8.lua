@@ -13,7 +13,7 @@ function _init()
  mleft = 8
 
  level = 1
- start_life=10
+ start_life=20
  hero = {x=0,y=0,spr=6,life=start_life,maxlife=30}
  lifebar = {x=58,y=2,h=5,col=8}
  heart = {x=0,y=0,placed=false,val=5,spr=51}
@@ -173,7 +173,6 @@ function next_level()
  place_enemies()
  place_powerups()
  compute_grid()
- hero.life=start_life
  selected = 1
 end
 
@@ -363,7 +362,7 @@ end
 
 function check_tile()
  if sametile(hero,heart) and heart.placed then
-  hero.life += heart.val
+  hero.life = min(30, hero.life + heart.val)
   heart.placed = false
  end
  for item in all(items) do
@@ -382,20 +381,25 @@ end
 function move_sphere_toward_hero(sphere)
   local dx
   local dy
-  local new_pos = {}
-  new_pos.x = sphere.x
-  new_pos.y = sphere.y
+  local new_pos1 = {}
+  local new_pos2 = {}
+  new_pos1.x = sphere.x
+  new_pos1.y = sphere.y
+  new_pos2.x = sphere.x
+  new_pos2.y = sphere.y
   dx = (hero.x - sphere.x)
   dy = (hero.y - sphere.y)
-  if abs(dx) > abs(dy) then
-   new_pos.x += sgn(dx)
-  else
-   new_pos.y += sgn(dy)
-  end
-  if allowed(new_pos) and
-  not is_occupied(new_pos.x, new_pos.y) then
-   sphere.x = new_pos.x
-   sphere.y = new_pos.y
+  new_pos1.x += sgn(dx)
+  new_pos2.y += sgn(dy)
+  if abs(dx) > abs(dy) and
+   allowed(new_pos1) and
+   not is_occupied(new_pos1.x, new_pos1.y) then
+   sphere.x = new_pos1.x
+   sphere.y = new_pos1.y
+  elseif allowed(new_pos2) and
+   not is_occupied(new_pos2.x, new_pos2.y) then
+   sphere.x = new_pos2.x
+   sphere.y = new_pos2.y
   end
 end
 
