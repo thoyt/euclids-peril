@@ -391,9 +391,8 @@ function move_sphere_toward_hero(sphere)
   dy = (hero.y - sphere.y)
   new_pos1.x += sgn(dx)
   new_pos2.y += sgn(dy)
-  if abs(dx) > abs(dy) and
-   allowed(new_pos1) and
-   not is_occupied(new_pos1.x, new_pos1.y) then
+  if (abs(dx) >= abs(dy) and allowed(new_pos1) and
+   not is_occupied(new_pos1.x, new_pos1.y)) then
    sphere.x = new_pos1.x
    sphere.y = new_pos1.y
   elseif allowed(new_pos2) and
