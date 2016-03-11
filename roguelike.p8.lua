@@ -4,7 +4,6 @@ __lua__
 function _init()
  mode = "splash"
  circles = {}
-
  grid = {}
 
  n = 7 -- tile grid dims
@@ -41,11 +40,11 @@ function _init()
  w = 16 -- the width of our tiles
 
  tiles = {}
- tiles[0] = {spr=0,name="blue", protects=false}
- tiles[1] = {spr=2,name="red", protects=false}
- tiles[2] = {spr=4,name="green", protects=false}
- tiles[3] = {spr=32,name="magic", protects=true}
- tiles[4] = {spr=36,name="wall", protects=false}
+ tiles[0] = {spr=0,name="blue"}
+ tiles[1] = {spr=2,name="red"}
+ tiles[2] = {spr=4,name="green"}
+ tiles[3] = {spr=32,name="magic"}
+ tiles[4] = {spr=36,name="wall"}
  ntiles = 4
  init_splash()
 end
@@ -71,7 +70,6 @@ end
 function sametile(u,v)
  return u.x==v.x and u.y==v.y
 end
-
 
 -- game gen --
 
@@ -113,7 +111,7 @@ function gen_sphere()
  sphere.frozen_spr = sphere_type.frozen_spr
  sphere.name = sphere_type.name
  sphere.frozen_turns = 0
- sphere.health = 2
+ sphere.health = flr(rnd(5)) + 1
  return sphere
 end
 
@@ -232,10 +230,10 @@ end
 function triangle_attack(sphere)
  dx = hero.x - sphere.x
  dy = hero.y - sphere.y
- t1x = hero.x-dy+dx
- t1y = hero.y+dx+dy
- t2x = hero.x+dy+dx
- t2y = hero.y-dx+dy
+ t1x = hero.x+dy
+ t1y = hero.y+dx
+ t2x = hero.x-dy
+ t2y = hero.y-dx
  draw_triangle(sphere.x,sphere.y,t1x,t1y,t2x,t2y,8)
  -- check other tiles and freeze spheres there
  freeze_sphere_at(t1x,t1y)
@@ -410,8 +408,8 @@ function within_attack_range(sphere)
          (abs(dy) == 1 and abs(dx) == 0)
 end
 
-function attack(sphere)
- hero.life -= 1
+function attack(sphere, p)
+ hero.life -= p
  rectfill(0,0,128,128,8)
 end
 
@@ -425,9 +423,10 @@ function sphere_turn_or_attack_hero(sphere)
  if sphere.frozen_turns == 0 then
   if within_attack_range(sphere) then
    if hero_protected(sphere) then
-     sfx(4)
+    sfx(4)
+    attack(sphere, flr(sphere.health/2))
    else
-    attack(sphere)
+    attack(sphere,sphere.health)
    end
   else
    move_sphere_toward_hero(sphere)
@@ -537,15 +536,26 @@ function splash_screen()
  spr(peril_spr, 26, 70, 10, 2)
  pal()
  print("'s",112,43,7) -- replace with pixels ^___^
- print("press z",50,100,7)
+ print("z: start",45,100,7)
+ print("x: tutorial",40,110,7)
  if btnp(4) then
   mode = "main"
   level = 1
   next_level()
+ elseif btnp(5) then
+  mode = "tutorial"
  end
 end
 
+function tutorial_screen()
+ if btnp(4) or btnp(5) then
+  mode = "splash"
+ end
+
+end
+
 function game_over()
+ _init()
  splash_screen()
  print("game over :<",50,150,8)
 end
@@ -558,6 +568,8 @@ function _draw()
  cls()
  if mode=="splash" then
   splash_screen()
+ elseif mode=="tutorial" then
+  tutorial_screen()
  elseif mode=="game over" then
   game_over()
  elseif mode=="main" then
