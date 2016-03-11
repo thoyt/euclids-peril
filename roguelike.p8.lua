@@ -15,18 +15,19 @@ function _init()
  level = 1
  start_life=20
  hero = {x=0,y=0,spr=6,life=start_life,maxlife=30}
- lifebar = {x=58,y=2,h=5,col=8}
+ lifebar = {x=58,y=3,h=5,col=8}
  heart = {x=0,y=0,placed=false,val=5,spr=51}
  p_heart = 0.5
 
  items = {}
- items[1] = {spr=38,name="pickax",own=true,func=break_wall,x_inv=mleft+1,x=0,y=0,placed=false,level=-1}
- items[2] = {spr=39,name="point",own=false,func=point_attack,x_inv=mleft+9,x=0,y=0,placed=false,level=2}
- items[3] = {spr=40,name="line",own=false,func=line_attack,x_inv=mleft+17,x=0,y=0,placed=false,level=4}
- items[4] = {spr=41,name="triangle",own=false,func=triangle_attack,x_inv=mleft+25,x=0,y=0,placed=false,level=6}
- items[5] = {spr=42,name="square",own=false,func=square_attack,x_inv=mleft+33,x=0,y=0,placed=false,level=7}
- selected = 1
+ inventory_x = mleft
  inventory_y = 2 -- inventory ypos
+ items[1] = {id=1,spr=38,name="pickax",own=true,func=break_wall,x=0,y=0,placed=false,level=-1}
+ items[2] = {id=2,spr=39,name="point",own=false,func=point_attack,x=0,y=0,placed=false,level=2}
+ items[3] = {id=3,spr=40,name="line",own=false,func=line_attack,x=0,y=0,placed=false,level=4}
+ items[4] = {id=4,spr=41,name="triangle",own=false,func=triangle_attack,x=0,y=0,placed=false,level=6}
+ items[5] = {id=5,spr=42,name="square",own=false,func=square_attack,x=0,y=0,placed=false,level=7}
+ selected = 1
 
  goal = {x=0,y=0,spr=8}
 
@@ -449,14 +450,14 @@ end
 function draw_inventory()
  function display_item(i)
   if i.own then
-   spr(i.spr,i.x_inv,inventory_y,1,1)
+   spr(i.spr,inventory_x+i.id*8,inventory_y,1,1)
   end
  end
  for i=1,#items do -- draw inventory background
-  spr(50,items[i].x_inv,inventory_y,1,1)
+  spr(50,inventory_x+items[i].id*8,inventory_y,1,1)
  end
  foreach(items, display_item)
- spr(35,items[selected].x_inv,inventory_y,1,1)
+ spr(35,inventory_x+items[selected].id*8,inventory_y,1,1)
 end
 
 function draw_lifebar()
@@ -561,7 +562,7 @@ function _draw()
   game_over()
  elseif mode=="main" then
   draw_bg()
-  print(level,2,2,7)
+  print(level,2,3,7)
   draw_inventory()
   draw_lifebar()
   draw_grid()
