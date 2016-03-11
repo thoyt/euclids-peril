@@ -2,7 +2,7 @@ pico-8 cartridge // http://www.pico-8.com
 version 5
 __lua__
 function _init()
- mode = "splash"
+ mode = "tutorial"
  circles = {}
  grid = {}
 
@@ -49,6 +49,26 @@ function _init()
 
  init_new_game()
  init_splash()
+end
+
+function init_tutorial_grid()
+ for i=0,n-1 do
+  grid[i] = {}
+  for j=0,m-1 do
+   grid[i][j] = {}
+   if j%2 == 0 then
+    grid[i][j] = 4
+   else
+    grid[i][j] = 0
+   end
+  end
+ end
+ goal.x = m-1
+ goal.y = 1
+ hero.x = n-1
+ hero.y = m-2
+
+ tutorial_level=1
 end
 
 function init_new_game()
@@ -185,9 +205,15 @@ function draw_powerups()
 end
 
 function next_level()
- place_enemies()
- place_powerups()
- compute_grid()
+ if mode == "main" then
+  place_enemies()
+  place_powerups()
+  compute_grid()
+  place_hero()
+  selected = 1
+ elseif mode == "tutorial_main" then
+
+ end
 end
 
 -- input processing and movement
@@ -577,10 +603,9 @@ function splash_screen()
 end
 
 function tutorial_screen()
- if btnp(4) or btnp(5) then
-  mode = "splash"
- end
-
+ init_new_game()
+ init_tutorial_grid()
+ mode="main"
 end
 
 function game_over()
