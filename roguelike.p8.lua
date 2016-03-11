@@ -46,7 +46,23 @@ function _init()
  tiles[3] = {spr=32,name="magic"}
  tiles[4] = {spr=36,name="wall"}
  ntiles = 4
+
+ init_new_game()
  init_splash()
+end
+
+function init_new_game()
+ level = 1
+ hero.life = start_life
+ for item in all(items) do
+  if item.name != "pickax" then
+   item.owned=false
+  end
+ end
+ selected = 1
+ hero.x = 0
+ hero.y = 0
+ game_over_pal = 15
 end
 
 -- utilities --
@@ -168,10 +184,21 @@ function draw_powerups()
  foreach(items, draw_powerup)
 end
 
+function place_hero()
+ hero.x = flr(rnd(n))
+ hero.y = flr(rnd(m))
+ while (not allowed(hero))
+  or is_occupied_by_sphere(hero.x, hero.y) do
+  hero.x = flr(rnd(n))
+  hero.y = flr(rnd(m))
+ end
+end
+
 function next_level()
  place_enemies()
  place_powerups()
  compute_grid()
+ place_hero()
  selected = 1
 end
 
@@ -316,7 +343,7 @@ function npc_turn()
 end
 
 function check_for_game_over()
- if hero.life <= 0 then
+  if hero.life <= 0 then
   mode = "game over"
  end
 end
@@ -340,6 +367,10 @@ end
 
 function is_occupied(x,y)
  if x == hero.x and y == hero.y then return true end
+ return is_occupied_by_sphere(x,y)
+end
+
+function is_occupied_by_sphere(x,y)
  for sphere in all(spheres) do
   if x == sphere.x and y == sphere.y then return true end
  end
@@ -540,7 +571,7 @@ function splash_screen()
  print("x: tutorial",40,110,7)
  if btnp(4) then
   mode = "main"
-  level = 1
+  init_new_game()
   next_level()
  elseif btnp(5) then
   mode = "tutorial"
@@ -555,9 +586,24 @@ function tutorial_screen()
 end
 
 function game_over()
- _init()
- splash_screen()
- print("game over :<",50,150,8)
+ if game_over_pal > 0 then
+  pal(game_over_pal, 0, 1)
+  game_over_pal -= 1
+ else
+  cls()
+  pal()
+  herox = mleft+hero.x*w
+  heroy = mtop+hero.y*w
+  spr(hero.spr,herox,heroy,2,2)
+  print("game over :<", 0, 0, 7)
+  print("z: start",45,100,9)
+  print("x: tutorial",40,110,9)
+ end
+ if btnp(4) then
+  mode="main"
+  init_new_game()
+  next_level()
+ end
 end
 
 function _update()
@@ -565,14 +611,15 @@ function _update()
 end
 
 function _draw()
- cls()
  if mode=="splash" then
+  cls()
   splash_screen()
  elseif mode=="tutorial" then
   tutorial_screen()
  elseif mode=="game over" then
   game_over()
  elseif mode=="main" then
+  cls()
   draw_bg()
   print(level,2,3,7)
   draw_inventory()
