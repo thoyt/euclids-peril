@@ -46,7 +46,7 @@ function _init()
  tiles[3] = {spr=32,name="magic"}
  tiles[4] = {spr=36,name="wall"}
  ntiles = 4
-
+ tut_count = 0
  init_new_game()
  init_splash()
 end
@@ -212,7 +212,10 @@ function next_level()
   place_hero()
   selected = 1
  elseif mode == "tutorial_main" then
-
+  init_new_game()
+  init_tutorial_grid()
+  place_enemies()
+  tut_count += 1
  end
 end
 
@@ -605,7 +608,7 @@ end
 function tutorial_screen()
  init_new_game()
  init_tutorial_grid()
- mode="main"
+ mode="tutorial_main"
 end
 
 function game_over()
@@ -645,7 +648,7 @@ function _draw()
   tutorial_screen()
  elseif mode=="game over" then
   game_over()
- elseif mode=="main" then
+ elseif mode=="main" or mode=="tutorial_main"then
   cls()
   draw_bg()
   print(level,2,3,7)
@@ -656,6 +659,11 @@ function _draw()
   spr(hero.spr,mleft+hero.x*w,mtop+hero.y*w,2,2)
   draw_powerups()
   draw_enemies()
+  if mode=="tutorial_main" then
+   if tut_count == 1 then
+      print("bump against walls with pickaxe to break them open", 100,0,7)
+   end
+  end
  end
 end
 
