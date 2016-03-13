@@ -1,23 +1,13 @@
 Not particularly "done"
 =======================
 
-* Embetterment
-  - Make it not so easy somehow?
-  - Make the weapons worth using/make sense (triangle strike sides instead of rear flanks?)
-
-* Sound 
-  - Music for the intro
-  - Music for the game
-  - Really we should refine the sound effects too
-
+?
 
 Nice to have
 ============
 
 * Tutorial screen
-* Game over screen
-  - Music for the game over screen 
-
+* Music for game or gameover screen / better title screen music
 
 Done-ish
 ========
