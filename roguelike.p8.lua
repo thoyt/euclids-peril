@@ -214,13 +214,10 @@ function get_sphere_at(pos)
 end
 
 function freeze_sphere(sphere)
- if (sphere.frozen_turns > 0) then
   sphere.health -= 1
   if items[selected].name!='pickax' then
    sphere.health -= 1
   end
- end
- sphere.frozen_turns = 2
 end
 
 function freeze_sphere_at(x,y)
