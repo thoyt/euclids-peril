@@ -16,16 +16,16 @@ function _init()
  hero = {x=0,y=0,spr=6,life=start_life,maxlife=30}
  lifebar = {x=58,y=3,h=5,col=8}
  heart = {x=0,y=0,placed=false,val=5,spr=51}
- p_heart = 0.5
+ p_heart = 0.35
 
  items = {}
  inventory_x = mleft
  inventory_y = 2 -- inventory ypos
  items[1] = {id=1,spr=38,name="pickax",own=true,func=break_wall,x=0,y=0,placed=false,level=-1}
- items[2] = {id=2,spr=39,name="point",own=false,func=point_attack,x=0,y=0,placed=false,level=2}
- items[3] = {id=3,spr=40,name="line",own=false,func=line_attack,x=0,y=0,placed=false,level=4}
- items[4] = {id=4,spr=41,name="triangle",own=false,func=triangle_attack,x=0,y=0,placed=false,level=6}
- items[5] = {id=5,spr=42,name="square",own=false,func=square_attack,x=0,y=0,placed=false,level=7}
+ items[2] = {id=2,spr=39,name="point",own=false,func=point_attack,x=0,y=0,placed=false,level=5}
+ items[3] = {id=3,spr=40,name="line",own=false,func=line_attack,x=0,y=0,placed=false,level=10}
+ items[4] = {id=4,spr=41,name="triangle",own=false,func=triangle_attack,x=0,y=0,placed=false,level=15}
+ items[5] = {id=5,spr=42,name="square",own=false,func=square_attack,x=0,y=0,placed=false,level=20}
  selected = 1
 
  goal = {x=0,y=0,spr=8}
@@ -127,7 +127,7 @@ function gen_sphere()
  sphere.frozen_spr = sphere_type.frozen_spr
  sphere.name = sphere_type.name
  sphere.frozen_turns = 0
- sphere.health = flr(rnd(5)) + 1
+ sphere.health = flr(rnd(6)) + 1
  return sphere
 end
 
@@ -184,22 +184,10 @@ function draw_powerups()
  foreach(items, draw_powerup)
 end
 
-function place_hero()
- hero.x = flr(rnd(n))
- hero.y = flr(rnd(m))
- while (not allowed(hero))
-  or is_occupied_by_sphere(hero.x, hero.y) do
-  hero.x = flr(rnd(n))
-  hero.y = flr(rnd(m))
- end
-end
-
 function next_level()
  place_enemies()
  place_powerups()
  compute_grid()
- place_hero()
- selected = 1
 end
 
 -- input processing and movement
@@ -224,6 +212,9 @@ end
 function freeze_sphere(sphere)
  if (sphere.frozen_turns > 0) then
   sphere.health -= 1
+  if items[selected].name!='pickax' then
+   sphere.health -= 1
+  end
  end
  sphere.frozen_turns = 2
 end
@@ -330,7 +321,7 @@ end
 
 function remove_dead_spheres()
  for sphere in all(spheres) do
-  if (sphere.health == 0) then
+  if (sphere.health <= 0) then
    del(spheres, sphere)
   end
  end
@@ -444,7 +435,9 @@ end
 
 function attack(sphere, p)
  hero.life -= p
- rectfill(0,0,128,128,8)
+ if hero.life > 0 then
+  rectfill(0,0,128,128,8)
+ end
 end
 
 function hero_protected(sphere)
@@ -589,23 +582,27 @@ function tutorial_screen()
 end
 
 function game_over()
- if game_over_pal > 0 then
-  pal(game_over_pal, 0, 1)
-  game_over_pal -= 1
- else
-  cls()
-  pal()
-  herox = mleft+hero.x*w
-  heroy = mtop+hero.y*w
-  spr(hero.spr,herox,heroy,2,2)
-  print("game over :<", 40, 40, 7)
-  print("z: start",45,100,9)
-  print("x: tutorial",40,110,9)
- end
- if btnp(4) then
-  mode="main"
-  init_new_game()
-  next_level()
+ if t%2 == 0 or game_over_pal==0 then
+  if game_over_pal > 0 then
+   pal(game_over_pal, 0, 1)
+   game_over_pal -= 1
+   tt = 0
+  else
+   cls()
+   pal()
+   herox = mleft+hero.x*w
+   heroy = mtop+hero.y*w
+   spr(hero.spr,herox,heroy,2,2)
+   tt += 1
+   print("game over :<", 40, 40, 6)
+   print("you got to level "..level..". nice.",17,50,6)
+   if tt > 50 then
+    print("press anything for title",15,100,9)
+    if btnp(0) or btnp(1) or btnp(2) or btnp(3) or btnp(4) or btnp(5) then
+     _init()
+    end
+   end
+  end
  end
 end
 
@@ -805,11 +802,11 @@ __sfx__
 010700003801126021130341f042270542f065071051900416005110020e003010040200203003030000300000000000000000000000000000000000000000000000000000000000000000000000000000000000
 000a00000207002070020000000000000000000000001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 010500000b66507637046110260131400314001330000000000002120000000000002e10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-0105000003360033401e3201131000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-010400000636108355063450434502335013250131500005000020000002300000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+0105000003363033451e3251131300000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+010400000655108544065440453402524015250151500005000020000002300000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 010a00000c13318145241550c30224405181052420013203132001020010200000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 0105000028075250752e0752c0752a075290741b074190751807322075200721f0751e073110720f0730c07516071140751007300075090730607203075010730000000000000000000000000000000000000000
-001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+01050000201530c1431413310122151240f1160c00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
