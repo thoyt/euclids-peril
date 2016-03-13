@@ -565,14 +565,14 @@ function splash_screen()
  pal()
  print("'s",112,43,7) -- replace with pixels ^___^
  print("z: start",45,100,7)
- print("x: tutorial",40,110,7)
+ --print("x: tutorial",40,110,7)
  if btnp(4) then
   mode = "main"
   music(-1)
   init_new_game()
   next_level()
  elseif btnp(5) then
-  mode = "tutorial"
+  --mode = "tutorial"
  end
 end
 
