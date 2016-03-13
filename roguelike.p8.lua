@@ -67,8 +67,6 @@ function init_tutorial_grid()
  goal.y = 1
  hero.x = n-1
  hero.y = m-2
-
- tutorial_level=1
 end
 
 function init_new_game()
@@ -215,7 +213,13 @@ function next_level()
   init_new_game()
   init_tutorial_grid()
   place_enemies()
+  if tut_count == 2 then
+   place_item(items[2])
+  end
   tut_count += 1
+  if tut_count == 4 then
+   mode = "splash"
+  end
  end
 end
 
@@ -636,6 +640,23 @@ function game_over()
  end
 end
 
+function draw_tut_messages()
+ if mode=="tutorial_main" then
+  if tut_count == 0 then
+   print("bump against walls with", mleft, mtop+6*w, 7)
+   print("pickaxe to break them", mleft, mtop+(6.5*w), 7)
+  end
+  if tut_count == 1 then
+   print("bump against enemies", mleft, mtop+6*w, 7)
+   print("to freeze/kill them", mleft, mtop+(6.5*w), 7)
+  end
+  if tut_count == 2 then
+   print("pick up new weapons", mleft, mtop+6*w, 7)
+   print("use z to switch wpn", mleft, mtop+(6.5*w), 7)
+  end
+ end
+end
+
 function _update()
  t+=1
 end
@@ -659,11 +680,7 @@ function _draw()
   spr(hero.spr,mleft+hero.x*w,mtop+hero.y*w,2,2)
   draw_powerups()
   draw_enemies()
-  if mode=="tutorial_main" then
-   if tut_count == 1 then
-      print("bump against walls with pickaxe to break them open", 100,0,7)
-   end
-  end
+  draw_tut_messages()
  end
 end
 
