@@ -47,6 +47,8 @@ function _init()
  tiles[4] = {spr=36,name="wall"}
  ntiles = 4
 
+ hearts_in_walls_prob = 0
+
  init_new_game()
  init_splash()
 end
@@ -149,8 +151,10 @@ function place_heart()
    heart.y = flr(rnd(m))
   end
   heart.placed = true
+  hearts_in_walls_prob = 0
  else
   heart.placed = false
+  hearts_in_walls_prob = 0.25
  end
 end
 
@@ -373,6 +377,12 @@ function break_wall(pos)
  if tile_at(pos).name == "wall" then
   sfx(3)
   grid[pos.x][pos.y] = flr(rnd(ntiles))
+  if rnd() < hearts_in_walls_prob then
+   hero.life = min(30, hero.life + 5)
+   sfx(6)
+   sfx(6)
+   hearts_in_walls_prob = 0
+  end
  end
 end
 
