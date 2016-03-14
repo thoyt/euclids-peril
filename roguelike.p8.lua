@@ -2,7 +2,7 @@ pico-8 cartridge // http://www.pico-8.com
 version 5
 __lua__
 function _init()
- mode = "tutorial"
+ mode = "splash"
  circles = {}
  grid = {}
 
@@ -22,9 +22,9 @@ function _init()
  inventory_x = mleft
  inventory_y = 2 -- inventory ypos
  items[1] = {id=1,spr=38,name="pickax",own=true,func=break_wall,x=0,y=0,placed=false,level=-1}
- items[2] = {id=2,spr=39,name="point",own=false,func=point_attack,x=0,y=0,placed=false,level=5}
- items[3] = {id=3,spr=40,name="line",own=false,func=line_attack,x=0,y=0,placed=false,level=10}
- items[4] = {id=4,spr=41,name="triangle",own=false,func=triangle_attack,x=0,y=0,placed=false,level=15}
+ items[2] = {id=2,spr=39,name="point",own=false,func=point_attack,x=0,y=0,placed=false,level=4}
+ items[3] = {id=3,spr=40,name="line",own=false,func=line_attack,x=0,y=0,placed=false,level=8}
+ items[4] = {id=4,spr=41,name="triangle",own=false,func=triangle_attack,x=0,y=0,placed=false,level=12}
  items[5] = {id=5,spr=42,name="square",own=false,func=square_attack,x=0,y=0,placed=false,level=20}
  selected = 1
 
@@ -147,7 +147,7 @@ function gen_sphere()
  sphere.frozen_spr = sphere_type.frozen_spr
  sphere.name = sphere_type.name
  sphere.frozen_turns = 0
- sphere.health = flr(rnd(6)) + 1
+ sphere.health = flr(rnd(5)) + 1
  return sphere
 end
 
@@ -211,7 +211,6 @@ function next_level()
   place_enemies()
   place_powerups()
   compute_grid()
-  selected = 1
  elseif mode == "tutorial_main" then
   tut_count += 1
   init_new_game()
@@ -385,9 +384,12 @@ end
 
 function process_input()
  if btnp(0) or btnp(1) or btnp(2) or btnp(3) or btnp(4) then
+  new_level = false
   player_turn()
-  npc_turn()
-  check_for_game_over()
+  if not new_level then
+   npc_turn()
+   check_for_game_over()
+  end
  end
 end
 
@@ -419,7 +421,6 @@ function break_wall(pos)
   if rnd() < hearts_in_walls_prob then
    hero.life = min(30, hero.life + 5)
    sfx(6)
-   sfx(6)
    hearts_in_walls_prob = 0
   end
  end
@@ -447,6 +448,7 @@ function check_tile()
  if sametile(hero,goal) then
   sfx(1)
   level+=1
+  new_level = true
   next_level()
  end
 end
@@ -687,7 +689,7 @@ function _draw()
   tutorial_screen()
  elseif mode=="game over" then
   game_over()
- elseif mode=="main" or mode=="tutorial_main"then
+ elseif mode=="main" or mode=="tutorial_main" then
   cls()
   draw_bg()
   print(level,2,3,7)
