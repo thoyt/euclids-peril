@@ -46,7 +46,9 @@ function _init()
  tiles[3] = {spr=32,name="magic"}
  tiles[4] = {spr=36,name="wall"}
  ntiles = 4
+ hearts_in_walls_prob = 0
  tut_count = 0
+
  init_new_game()
  init_splash()
 end
@@ -74,7 +76,7 @@ function init_new_game()
  hero.life = start_life
  for item in all(items) do
   if item.name != "pickax" then
-   item.owned=false
+   item.own=false
   end
  end
  selected = 1
@@ -167,8 +169,10 @@ function place_heart()
    heart.y = flr(rnd(m))
   end
   heart.placed = true
+  hearts_in_walls_prob = 0
  else
   heart.placed = false
+  hearts_in_walls_prob = 0.25
  end
 end
 
@@ -207,17 +211,26 @@ function next_level()
   place_enemies()
   place_powerups()
   compute_grid()
-  place_hero()
   selected = 1
  elseif mode == "tutorial_main" then
+  tut_count += 1
   init_new_game()
   init_tutorial_grid()
   place_enemies()
+  spheres[1].health = 1
+  spheres[2].health = 1
   if tut_count == 2 then
-   place_item(items[2])
+   items[3].x=n-3
+   items[3].y=m-2
+   items[3].placed = true
+   spheres[1].x=n-8
+   spheres[1].y=m-4
+   spheres[2].x=n-1
+   spheres[2].y=m-4
+  spheres[1].health = 2
+  spheres[2].health = 2
   end
-  tut_count += 1
-  if tut_count == 4 then
+  if tut_count == 3 then
    mode = "splash"
   end
  end
@@ -243,13 +256,10 @@ function get_sphere_at(pos)
 end
 
 function freeze_sphere(sphere)
- if (sphere.frozen_turns > 0) then
   sphere.health -= 1
   if items[selected].name!='pickax' then
    sphere.health -= 1
   end
- end
- sphere.frozen_turns = 2
 end
 
 function freeze_sphere_at(x,y)
@@ -406,6 +416,12 @@ function break_wall(pos)
  if tile_at(pos).name == "wall" then
   sfx(3)
   grid[pos.x][pos.y] = flr(rnd(ntiles))
+  if rnd() < hearts_in_walls_prob then
+   hero.life = min(30, hero.life + 5)
+   sfx(6)
+   sfx(6)
+   hearts_in_walls_prob = 0
+  end
  end
 end
 
@@ -598,14 +614,16 @@ function splash_screen()
  pal()
  print("'s",112,43,7) -- replace with pixels ^___^
  print("z: start",45,100,7)
- --print("x: tutorial",40,110,7)
+ print("x: tutorial",40,110,7)
  if btnp(4) then
   mode = "main"
   music(-1)
   init_new_game()
   next_level()
  elseif btnp(5) then
-  --mode = "tutorial"
+  mode = "tutorial"
+  music(-1)
+  tut_count=0
  end
 end
 
