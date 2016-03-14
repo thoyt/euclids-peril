@@ -77,7 +77,7 @@ function init_new_game()
  hero.life = start_life
  for item in all(items) do
   if item.name != "pickax" then
-   item.owned=false
+   item.own=false
   end
  end
  selected = 1
