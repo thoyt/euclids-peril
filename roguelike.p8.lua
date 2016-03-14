@@ -48,9 +48,28 @@ function _init()
  ntiles = 4
 
  hearts_in_walls_prob = 0
+ tut_count = 0
 
  init_new_game()
  init_splash()
+end
+
+function init_tutorial_grid()
+ for i=0,n-1 do
+  grid[i] = {}
+  for j=0,m-1 do
+   grid[i][j] = {}
+   if j%2 == 0 then
+    grid[i][j] = 4
+   else
+    grid[i][j] = 0
+   end
+  end
+ end
+ goal.x = m-1
+ goal.y = 1
+ hero.x = n-1
+ hero.y = m-2
 end
 
 function init_new_game()
@@ -189,9 +208,33 @@ function draw_powerups()
 end
 
 function next_level()
- place_enemies()
- place_powerups()
- compute_grid()
+ if mode == "main" then
+  place_enemies()
+  place_powerups()
+  compute_grid()
+  selected = 1
+ elseif mode == "tutorial_main" then
+  tut_count += 1
+  init_new_game()
+  init_tutorial_grid()
+  place_enemies()
+  spheres[1].health = 1
+  spheres[2].health = 1
+  if tut_count == 2 then
+   items[3].x=n-3
+   items[3].y=m-2
+   items[3].placed = true
+   spheres[1].x=n-8
+   spheres[1].y=m-4
+   spheres[2].x=n-1
+   spheres[2].y=m-4
+  spheres[1].health = 2
+  spheres[2].health = 2
+  end
+  if tut_count == 3 then
+   mode = "splash"
+  end
+ end
 end
 
 -- input processing and movement
@@ -572,22 +615,23 @@ function splash_screen()
  pal()
  print("'s",112,43,7) -- replace with pixels ^___^
  print("z: start",45,100,7)
- --print("x: tutorial",40,110,7)
+ print("x: tutorial",40,110,7)
  if btnp(4) then
   mode = "main"
   music(-1)
   init_new_game()
   next_level()
  elseif btnp(5) then
-  --mode = "tutorial"
+  mode = "tutorial"
+  music(-1)
+  tut_count=0
  end
 end
 
 function tutorial_screen()
- if btnp(4) or btnp(5) then
-  mode = "splash"
- end
-
+ init_new_game()
+ init_tutorial_grid()
+ mode="tutorial_main"
 end
 
 function game_over()
@@ -615,6 +659,23 @@ function game_over()
  end
 end
 
+function draw_tut_messages()
+ if mode=="tutorial_main" then
+  if tut_count == 0 then
+   print("bump against walls with", mleft, mtop+6*w, 7)
+   print("pickaxe to break them", mleft, mtop+(6.5*w), 7)
+  end
+  if tut_count == 1 then
+   print("bump against enemies", mleft, mtop+6*w, 7)
+   print("to freeze/kill them", mleft, mtop+(6.5*w), 7)
+  end
+  if tut_count == 2 then
+   print("pick up new weapons", mleft, mtop+6*w, 7)
+   print("use z to switch wpn", mleft, mtop+(6.5*w), 7)
+  end
+ end
+end
+
 function _update()
  t+=1
 end
@@ -627,7 +688,7 @@ function _draw()
   tutorial_screen()
  elseif mode=="game over" then
   game_over()
- elseif mode=="main" then
+ elseif mode=="main" or mode=="tutorial_main"then
   cls()
   draw_bg()
   print(level,2,3,7)
@@ -638,6 +699,7 @@ function _draw()
   spr(hero.spr,mleft+hero.x*w,mtop+hero.y*w,2,2)
   draw_powerups()
   draw_enemies()
+  draw_tut_messages()
  end
 end
 
